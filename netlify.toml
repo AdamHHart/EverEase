@@ -1,0 +1,40 @@
+# Netlify configuration for staging and production deployments
+
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+# Production branch (will be connected to your custom domain)
+[context.production]
+  command = "npm run build"
+
+# Staging branch configuration
+[context.staging]
+  command = "npm run build"
+
+# Branch deploy previews
+[context.branch-deploy]
+  command = "npm run build"
+
+# Deploy previews for pull requests
+[context.deploy-preview]
+  command = "npm run build"
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://api.resend.com https://api.anthropic.com;"
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
