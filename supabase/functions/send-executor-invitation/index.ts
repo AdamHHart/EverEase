@@ -40,7 +40,7 @@ serve(async (req: Request) => {
     // Generate a secure invitation token
     const token = crypto.randomUUID();
     
-    // Use the current domain - updated to the new Netlify URL
+    // Use the current domain - updated to the previous Netlify URL
     const appUrl = "https://splendorous-taffy-cfab45.netlify.app";
     const invitationUrl = `${appUrl}/executor/accept/${token}`;
 
