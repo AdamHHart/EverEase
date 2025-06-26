@@ -111,7 +111,7 @@ export default function CheckoutForm({
           Secure Payment
         </CardTitle>
         <CardDescription>
-          Complete your purchase of {productName}
+          Create your membership. Members can be at ease, as your loved ones will be taken care of.
         </CardDescription>
       </CardHeader>
       <CardContent>

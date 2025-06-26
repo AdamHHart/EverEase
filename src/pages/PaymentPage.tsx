@@ -18,9 +18,9 @@ export default function PaymentPage() {
 
   // Example product data - in a real app, this would come from your backend
   const product = {
-    name: 'Premium Plan',
-    description: 'Access to all features and premium support',
-    amount: 2999, // $29.99 in cents
+    name: 'Membership',
+    description: 'Members can be at ease, as your loved ones will be taken care of.',
+    amount: 1999, // $19.99 in cents
     currency: 'usd'
   };
 
@@ -66,7 +66,7 @@ export default function PaymentPage() {
                       <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
                       <h2 className="text-2xl font-bold text-green-700 mb-2">Payment Successful!</h2>
                       <p className="text-gray-600 mb-6">
-                        Thank you for your purchase. Your premium features are now active.
+                        Thank you for your purchase. Your membership is now active.
                       </p>
                       <Button onClick={() => navigate('/dashboard')}>
                         Return to Dashboard
