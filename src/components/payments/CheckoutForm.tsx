@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { createCheckoutSession } from '../../lib/stripe';
 import { products } from '../../stripe-config';
 import { toast } from '../ui/toast';
-import { AlertCircle, CheckCircle, CreditCard } from 'lucide-react';
+import { AlertCircle, CheckCircle, CreditCard, Loader2 } from 'lucide-react';
 
 interface CheckoutFormProps {
   amount: number;
@@ -111,14 +111,17 @@ export default function CheckoutForm({
               <label className="block text-sm font-medium text-gray-700">
                 Card Details
               </label>
-              <div className="p-3 border rounded-md bg-white">
+              <div className="p-4 border rounded-md bg-white min-h-[40px]">
                 <CardElement options={cardElementOptions} />
               </div>
+              <p className="text-xs text-gray-500">
+                Test card: 4242 4242 4242 4242 | Exp: Any future date | CVC: Any 3 digits
+              </p>
             </div>
             
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium">Total:</span>
-              <span className="font-bold">{(amount / 100).toFixed(2)} {currency.toUpperCase()}</span>
+              <span className="font-bold">{(amount / 100).toFixed(2)} {currency.toUpperCase()}/month</span>
             </div>
             
             {error && (
@@ -145,7 +148,14 @@ export default function CheckoutForm({
                 disabled={!stripe || loading}
                 className="flex-1"
               >
-                {loading ? 'Processing...' : `Pay ${(amount / 100).toFixed(2)} ${currency.toUpperCase()}`}
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Processing...
+                  </span>
+                ) : (
+                  `Subscribe for $${(amount / 100).toFixed(2)}/${currency.toUpperCase()} monthly`
+                )}
               </Button>
             </div>
           </form>
