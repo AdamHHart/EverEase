@@ -1,16 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import { Menu, User, Bell, ChevronDown, LogOut, MessageCircle, CreditCard } from 'lucide-react';
 import { cn, getInitials, generateAvatarColor } from '../lib/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import EmmaAvatar from './emma/EmmaAvatar';
+import { supabase } from '../lib/supabase';
 
 export default function Header() {
   const { user, signOut } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [hasSubscription, setHasSubscription] = useState(false);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (user) {
+      checkSubscription();
+    }
+  }, [user]);
+
+  const checkSubscription = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('stripe_user_subscriptions')
+        .select('subscription_status')
+        .maybeSingle();
+      
+      if (error) throw error;
+      
+      setHasSubscription(data?.subscription_status === 'active' || data?.subscription_status === 'trialing');
+    } catch (err) {
+      console.error('Error checking subscription:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -57,16 +84,18 @@ export default function Header() {
           <span>Chat with Emma</span>
         </Button>
         
-        {/* Upgrade button */}
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="hidden md:flex items-center gap-2"
-          onClick={() => navigate('/payment')}
-        >
-          <CreditCard className="h-4 w-4" />
-          <span>Upgrade</span>
-        </Button>
+        {/* Upgrade/Membership button */}
+        {!loading && (
+          <Button 
+            variant={hasSubscription ? "outline" : "calm"}
+            size="sm" 
+            className="hidden md:flex items-center gap-2"
+            onClick={() => navigate('/payment')}
+          >
+            <CreditCard className="h-4 w-4" />
+            <span>{hasSubscription ? 'Membership Active' : 'Upgrade'}</span>
+          </Button>
+        )}
         
         {/* Notifications */}
         <button className="p-2 rounded-full text-muted-foreground hover:bg-muted">
@@ -134,7 +163,7 @@ export default function Header() {
                   }}
                 >
                   <CreditCard className="mr-2 h-4 w-4" />
-                  Upgrade to Premium
+                  {hasSubscription ? 'Manage Membership' : 'Upgrade to Premium'}
                 </button>
                 
                 <button

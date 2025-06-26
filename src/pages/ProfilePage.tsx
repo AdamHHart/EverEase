@@ -4,8 +4,9 @@ import { supabase } from '../lib/supabase';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { User, Mail, Shield, AlertCircle } from 'lucide-react';
+import { User, Mail, Shield, AlertCircle, CreditCard } from 'lucide-react';
 import AuditTrail from '../components/AuditTrail';
+import SubscriptionStatus from '../components/SubscriptionStatus';
 
 export default function ProfilePage() {
   const { user, userRole } = useAuth();
@@ -74,6 +75,9 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Subscription Status */}
+        <SubscriptionStatus />
 
         <Card>
           <CardHeader>

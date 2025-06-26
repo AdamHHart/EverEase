@@ -17,9 +17,6 @@
     "deploy:production": "npm run build && netlify deploy --prod --dir=dist"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.40.0",
-    "@supabase/auth-ui-react": "^0.4.7",
-    "@supabase/auth-ui-shared": "^0.1.7",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",
@@ -34,18 +31,21 @@
     "@radix-ui/react-toast": "^1.1.5",
     "@stripe/react-stripe-js": "^2.5.0",
     "@stripe/stripe-js": "^3.0.5",
+    "@supabase/auth-ui-react": "^0.4.7",
+    "@supabase/auth-ui-shared": "^0.1.7",
+    "@supabase/supabase-js": "^2.40.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "framer-motion": "^11.1.8",
     "lucide-react": "^0.344.0",
+    "openai": "^4.28.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.22.3",
+    "react-webcam": "^7.2.0",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
-    "zustand": "^4.5.2",
-    "react-webcam": "^7.2.0",
-    "openai": "^4.28.0"
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

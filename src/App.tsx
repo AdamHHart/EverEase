@@ -27,6 +27,8 @@ import HelpPage from './pages/HelpPage';
 import NotFoundPage from './pages/NotFoundPage';
 import LandingPage from './pages/LandingPage';
 import PaymentPage from './pages/PaymentPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentCancelPage from './pages/PaymentCancelPage';
 
 // Auth provider
 import { AuthProvider } from './contexts/AuthContext';
@@ -78,6 +80,10 @@ function App() {
         <Route path="/executor/accept/:token" element={<ExecutorAcceptPage />} />
         <Route path="/executor/invitation/:token" element={<ExecutorInvitation />} />
         <Route path="/email-test" element={<EmailTestPage />} />
+        
+        {/* Payment success and cancel routes */}
+        <Route path="/payment/success" element={<PaymentSuccessPage />} />
+        <Route path="/payment/cancel" element={<PaymentCancelPage />} />
         
         {/* Protected routes - these require authentication */}
         <Route path="/" element={<Layout />}>

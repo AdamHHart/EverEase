@@ -1,22 +1,35 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { CreditCard, ShieldCheck, CheckCircle, ArrowLeft } from 'lucide-react';
+import { CreditCard, ShieldCheck, CheckCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import StripeProvider from '../components/payments/StripeProvider';
 import CheckoutForm from '../components/payments/CheckoutForm';
 import PaymentMethodSelector from '../components/payments/PaymentMethodSelector';
 import { useAuth } from '../contexts/AuthContext';
+import { products, formatPrice } from '../stripe-config';
 
 export default function PaymentPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('checkout');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [paymentComplete, setPaymentComplete] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Example product data - in a real app, this would come from your backend
+  // Check if this is a success redirect from Stripe
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const sessionId = query.get('session_id');
+    
+    if (sessionId && location.pathname.includes('/payment/success')) {
+      setPaymentComplete(true);
+    }
+  }, [location]);
+
+  // Product data from our configuration
   const product = {
     name: 'Membership',
     description: 'Members can be at ease, as your loved ones will be taken care of.',
@@ -27,8 +40,6 @@ export default function PaymentPage() {
   const handlePaymentSuccess = (paymentIntentId: string) => {
     console.log('Payment successful:', paymentIntentId);
     setPaymentComplete(true);
-    
-    // In a real app, you would update the user's subscription status in your database
   };
 
   return (
@@ -116,12 +127,12 @@ export default function PaymentPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between">
-                <span>{product.name}</span>
-                <span>${(product.amount / 100).toFixed(2)}</span>
+                <span>{products.membership.name}</span>
+                <span>${(product.amount / 100).toFixed(2)}/month</span>
               </div>
               <div className="border-t pt-4 flex justify-between font-bold">
                 <span>Total</span>
-                <span>${(product.amount / 100).toFixed(2)}</span>
+                <span>${(product.amount / 100).toFixed(2)}/month</span>
               </div>
             </CardContent>
             <CardFooter className="bg-gray-50 border-t">

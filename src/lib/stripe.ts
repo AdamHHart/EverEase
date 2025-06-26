@@ -1,59 +1,60 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 
 // Initialize Stripe with your publishable key
-// In production, this should be an environment variable
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_your_key');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
 
 export { stripePromise };
 
-// Helper function to create a payment intent
-export const createPaymentIntent = async (amount: number, currency: string = 'usd', metadata: Record<string, string> = {}) => {
+// Helper function to create a checkout session
+export const createCheckoutSession = async (priceId: string, mode: 'payment' | 'subscription' = 'subscription') => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-payment-intent`, {
+    // Get the current URL to use for success and cancel URLs
+    const origin = window.location.origin;
+    const successUrl = `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${origin}/payment/cancel`;
+
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        amount,
-        currency,
-        metadata
+        price_id: priceId,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        mode,
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to create payment intent');
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to create checkout session');
     }
 
-    return await response.json();
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error('Error creating payment intent:', error);
+    console.error('Error creating checkout session:', error);
     throw error;
   }
 };
 
-// Helper function to get payment method details
-export const getPaymentMethod = async (paymentMethodId: string) => {
+// Helper function to get subscription status
+export const getSubscriptionStatus = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-payment-method`, {
-      method: 'POST',
+    const { data: authData, error: authError } = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/stripe_user_subscriptions?select=*`, {
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
+        'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${localStorage.getItem('supabase.auth.token')}`,
       },
-      body: JSON.stringify({
-        paymentMethodId
-      }),
-    });
+    }).then(res => res.json());
 
-    if (!response.ok) {
-      throw new Error('Failed to get payment method');
-    }
-
-    return await response.json();
+    if (authError) throw authError;
+    
+    return authData && authData.length > 0 ? authData[0] : null;
   } catch (error) {
-    console.error('Error getting payment method:', error);
-    throw error;
+    console.error('Error getting subscription status:', error);
+    return null;
   }
 };

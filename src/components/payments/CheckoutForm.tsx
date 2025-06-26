@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { createPaymentIntent } from '../../lib/stripe';
+import { createCheckoutSession } from '../../lib/stripe';
+import { products } from '../../stripe-config';
 import { toast } from '../ui/toast';
 import { AlertCircle, CheckCircle, CreditCard } from 'lucide-react';
 
@@ -39,48 +40,24 @@ export default function CheckoutForm({
     setError(null);
 
     try {
-      // Create a payment intent on the server
-      const { clientSecret } = await createPaymentIntent(amount, currency, {
-        product: productName
-      });
+      // Create a checkout session using our edge function
+      const { sessionId, url } = await createCheckoutSession(
+        products.membership.priceId,
+        products.membership.mode
+      );
 
-      // Use the client secret to confirm the payment
-      const cardElement = elements.getElement(CardElement);
-      
-      if (!cardElement) {
-        throw new Error('Card element not found');
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error('Failed to create checkout session');
       }
-
-      const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: {
-            name: 'Ever Ease User', // In a real app, you'd collect this from the user
-          },
-        }
-      });
-
-      if (stripeError) {
-        throw new Error(stripeError.message);
-      }
-
-      if (paymentIntent.status === 'succeeded') {
-        setSucceeded(true);
-        toast({
-          title: "Payment successful!",
-          description: `Your payment of ${(amount / 100).toFixed(2)} ${currency.toUpperCase()} has been processed.`,
-        });
-        
-        if (onSuccess) {
-          onSuccess(paymentIntent.id);
-        }
-      }
-    } catch (err) {
-      console.error('Payment error:', err);
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } catch (error) {
+      console.error('Payment error:', error);
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
       toast({
         title: "Payment failed",
-        description: err instanceof Error ? err.message : 'An unknown error occurred',
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
         variant: "destructive"
       });
     } finally {
@@ -93,6 +70,7 @@ export default function CheckoutForm({
       base: {
         fontSize: '16px',
         color: '#424770',
+        fontFamily: 'Inter, sans-serif',
         '::placeholder': {
           color: '#aab7c4',
         },
