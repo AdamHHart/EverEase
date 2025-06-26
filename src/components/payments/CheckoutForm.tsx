@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
@@ -96,11 +96,13 @@ export default function CheckoutForm({
         '::placeholder': {
           color: '#aab7c4',
         },
+        padding: '10px 12px',
       },
       invalid: {
         color: '#9e2146',
       },
     },
+    hidePostalCode: true,
   };
 
   return (
@@ -131,7 +133,7 @@ export default function CheckoutForm({
               <label className="block text-sm font-medium text-gray-700">
                 Card Details
               </label>
-              <div className="p-3 border rounded-md">
+              <div className="p-3 border rounded-md bg-white">
                 <CardElement options={cardElementOptions} />
               </div>
             </div>
