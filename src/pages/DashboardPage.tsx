@@ -70,10 +70,9 @@ export default function DashboardPage() {
         const { data: onboardingData } = await supabase
           .from('onboarding_responses')
           .select('completed')
-          .eq('user_id', user.id)
-          .single();
+          .eq('user_id', user.id);
         
-        setHasOnboarded(!!onboardingData?.completed);
+        setHasOnboarded(!!(onboardingData && onboardingData.length > 0 && onboardingData[0]?.completed));
 
         // Fetch count of assets
         const { count: assetsCount } = await supabase
