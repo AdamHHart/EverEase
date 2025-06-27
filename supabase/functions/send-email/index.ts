@@ -40,19 +40,30 @@ Deno.serve(async (req: Request) => {
       throw new Error("Either html or text content is required");
     }
 
-    // Get email service configuration from environment
-    const emailService = Deno.env.get("EMAIL_SERVICE") || "resend";
-    const resendApiKey = Deno.env.get("RESEND_API_KEY") || "re_NkHUzen8_NQLt4whNQbqWhcYgmRTynzRm";
+    // Get email service configuration from environment with better error handling
+    const emailService = Deno.env.get("EMAIL_SERVICE")?.toLowerCase().trim() || "resend";
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const sendGridApiKey = Deno.env.get("SENDGRID_API_KEY");
     const fromEmail = Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev";
+    
+    console.log(`Email service configured as: ${emailService}`);
+    console.log(`Available environment variables: EMAIL_SERVICE=${Deno.env.get("EMAIL_SERVICE")}, RESEND_API_KEY=${resendApiKey ? 'set' : 'not set'}, SENDGRID_API_KEY=${sendGridApiKey ? 'set' : 'not set'}`);
     
     let response;
     
     if (emailService === "resend") {
+      if (!resendApiKey) {
+        throw new Error("RESEND_API_KEY environment variable is required for Resend service");
+      }
       response = await sendWithResend(to, subject, emailHtml, emailText, resendApiKey, fromEmail);
     } else if (emailService === "sendgrid") {
+      if (!sendGridApiKey) {
+        throw new Error("SENDGRID_API_KEY environment variable is required for SendGrid service");
+      }
       response = await sendWithSendGrid(to, subject, emailHtml, emailText);
     } else {
-      throw new Error("Unsupported email service");
+      // Provide more detailed error information
+      throw new Error(`Unsupported email service: "${emailService}". Supported services are: "resend" or "sendgrid". Please check your EMAIL_SERVICE environment variable.`);
     }
 
     return new Response(
@@ -136,6 +147,8 @@ async function sendWithSendGrid(to: string, subject: string, html: string, text?
     throw new Error("SENDGRID_API_KEY environment variable is required");
   }
 
+  console.log(`Sending email via SendGrid to ${to} from ${fromEmail}`);
+
   const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
     headers: {
@@ -165,8 +178,11 @@ async function sendWithSendGrid(to: string, subject: string, html: string, text?
 
   if (!response.ok) {
     const errorData = await response.text();
+    console.error(`SendGrid API error (${response.status}):`, errorData);
     throw new Error(`SendGrid API error (${response.status}): ${errorData}`);
   }
 
-  return { messageId: response.headers.get("x-message-id") };
+  const result = { messageId: response.headers.get("x-message-id") };
+  console.log("SendGrid email sent successfully:", result);
+  return result;
 }
