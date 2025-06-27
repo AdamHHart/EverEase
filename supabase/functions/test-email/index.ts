@@ -15,7 +15,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const resendApiKey = "re_NkHUzen8_NQLt4whNQbqWhcYgmRTynzRm";
+    const resendApiKey = Deno.env.get("RESEND_API_KEY") || "re_NkHUzen8_NQLt4whNQbqWhcYgmRTynzRm";
     
     if (!resendApiKey) {
       throw new Error("RESEND_API_KEY is not configured");
@@ -60,7 +60,7 @@ serve(async (req: Request) => {
             <h2>Test Details:</h2>
             <ul>
               <li><strong>Service:</strong> Resend</li>
-              <li><strong>API Key:</strong> re_NkHUzen8_*** (configured)</li>
+              <li><strong>API Key:</strong> ${resendApiKey.substring(0, 10)}*** (configured)</li>
               <li><strong>From:</strong> onboarding@resend.dev</li>
               <li><strong>To:</strong> ${recipientEmail}</li>
               <li><strong>Status:</strong> Successfully delivered</li>

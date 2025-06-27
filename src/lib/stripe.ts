@@ -25,6 +25,7 @@ export const createCheckoutSession = async (
     const successUrl = `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = `${origin}/payment/cancel`;
 
+    // Call the Supabase Edge Function to create a checkout session
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
       method: 'POST',
       headers: {

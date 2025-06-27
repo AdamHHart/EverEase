@@ -31,6 +31,7 @@ export default function CheckoutForm({
     setError(null);
 
     try {
+      // Use the server-side checkout session creation
       const { url } = await createCheckoutSession(
         products.membership.priceId,
         products.membership.mode,
@@ -38,6 +39,7 @@ export default function CheckoutForm({
       );
 
       if (url) {
+        // Redirect to Stripe Checkout
         window.location.href = url;
       } else {
         throw new Error('Failed to create checkout session');

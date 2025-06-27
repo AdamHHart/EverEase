@@ -1,7 +1,7 @@
 // Stripe product configuration
 export const products = {
   membership: {
-    priceId: 'price_1Re53IARyeZPP3BxebrYo905',
+    priceId: 'price_1Re53IARyeZPP3BxebrYo905', // Update this with your actual price ID
     name: 'EverEase Membership',
     description: 'Ongoing support of end-of-life estate management services',
     mode: 'subscription' as const,

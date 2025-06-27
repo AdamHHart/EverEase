@@ -42,11 +42,13 @@ Deno.serve(async (req: Request) => {
 
     // Get email service configuration from environment
     const emailService = Deno.env.get("EMAIL_SERVICE") || "resend";
+    const resendApiKey = Deno.env.get("RESEND_API_KEY") || "re_NkHUzen8_NQLt4whNQbqWhcYgmRTynzRm";
+    const fromEmail = Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev";
     
     let response;
     
     if (emailService === "resend") {
-      response = await sendWithResend(to, subject, emailHtml, emailText);
+      response = await sendWithResend(to, subject, emailHtml, emailText, resendApiKey, fromEmail);
     } else if (emailService === "sendgrid") {
       response = await sendWithSendGrid(to, subject, emailHtml, emailText);
     } else {
@@ -57,7 +59,12 @@ Deno.serve(async (req: Request) => {
       JSON.stringify({
         success: true,
         message: "Email sent successfully",
-        messageId: response.messageId || response.id
+        messageId: response.messageId || response.id,
+        recipient: to,
+        details: {
+          service: emailService,
+          from: fromEmail
+        }
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -78,13 +85,22 @@ Deno.serve(async (req: Request) => {
   }
 });
 
-async function sendWithResend(to: string, subject: string, html: string, text?: string) {
-  const resendApiKey = Deno.env.get("RESEND_API_KEY");
-  const fromEmail = Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev";
+async function sendWithResend(
+  to: string, 
+  subject: string, 
+  html: string, 
+  text?: string, 
+  apiKey?: string,
+  fromEmail?: string
+) {
+  const resendApiKey = apiKey || Deno.env.get("RESEND_API_KEY");
+  const from = fromEmail || Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev";
   
   if (!resendApiKey) {
     throw new Error("RESEND_API_KEY environment variable is required");
   }
+
+  console.log(`Sending email via Resend to ${to} from ${from}`);
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -93,7 +109,7 @@ async function sendWithResend(to: string, subject: string, html: string, text?: 
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: fromEmail,
+      from: from,
       to: [to],
       subject,
       html,
@@ -103,10 +119,13 @@ async function sendWithResend(to: string, subject: string, html: string, text?: 
 
   if (!response.ok) {
     const errorData = await response.text();
+    console.error(`Resend API error (${response.status}):`, errorData);
     throw new Error(`Resend API error (${response.status}): ${errorData}`);
   }
 
-  return await response.json();
+  const result = await response.json();
+  console.log("Resend email sent successfully:", result);
+  return result;
 }
 
 async function sendWithSendGrid(to: string, subject: string, html: string, text?: string) {
