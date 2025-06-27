@@ -66,3 +66,36 @@ export const getSubscriptionStatus = async () => {
     return null;
   }
 };
+
+// Helper function to get payment method details
+export const getPaymentMethod = async (paymentMethodId: string) => {
+  try {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      throw new Error('Failed to authenticate user');
+    }
+
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-payment-method`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        paymentMethodId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get payment method');
+    }
+
+    const data = await response.json();
+    return data.paymentMethod;
+  } catch (error) {
+    console.error('Error getting payment method:', error);
+    throw error;
+  }
+};
