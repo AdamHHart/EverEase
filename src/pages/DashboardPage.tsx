@@ -18,6 +18,7 @@ import {
   Crown,
   AlertTriangle
 } from 'lucide-react';
+import SubscriptionBanner from '../components/SubscriptionBanner';
 
 interface PlannerProfile {
   id: string;
@@ -43,6 +44,8 @@ export default function DashboardPage() {
   const [executorPlans, setExecutorPlans] = useState<PlannerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasOnboarded, setHasOnboarded] = useState(false);
+  const [hasSubscription, setHasSubscription] = useState(false);
+  const [isInTrial, setIsInTrial] = useState(false);
   
   useEffect(() => {
     async function fetchStats() {
@@ -65,6 +68,16 @@ export default function DashboardPage() {
           setLoading(false);
           return;
         }
+
+        // Check subscription status
+        const { data: subscriptionData } = await supabase
+          .from('stripe_user_subscriptions')
+          .select('subscription_status')
+          .maybeSingle();
+        
+        setHasSubscription(subscriptionData?.subscription_status === 'active' || 
+                          subscriptionData?.subscription_status === 'trialing');
+        setIsInTrial(subscriptionData?.subscription_status === 'trialing');
 
         // Check if user has completed onboarding
         const { data: onboardingData } = await supabase
@@ -217,6 +230,9 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Subscription Banner */}
+      {userRole === 'planner' && <SubscriptionBanner className="mb-4" />}
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>

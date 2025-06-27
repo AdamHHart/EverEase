@@ -7,7 +7,11 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 
 export { stripePromise };
 
 // Helper function to create a checkout session
-export const createCheckoutSession = async (priceId: string, mode: 'payment' | 'subscription' = 'subscription') => {
+export const createCheckoutSession = async (
+  priceId: string, 
+  mode: 'payment' | 'subscription' = 'subscription',
+  trialPeriodDays?: number
+) => {
   try {
     // Get the current user's session
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -32,6 +36,7 @@ export const createCheckoutSession = async (priceId: string, mode: 'payment' | '
         success_url: successUrl,
         cancel_url: cancelUrl,
         mode,
+        trial_period_days: trialPeriodDays
       }),
     });
 

@@ -10,6 +10,9 @@ type AuthContextType = {
   userRole: string | null;
   signOut: () => Promise<void>;
   loading: boolean;
+  hasSubscription: boolean;
+  isInTrial: boolean;
+  checkSubscription: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +28,8 @@ export function AuthProvider({
   const [user, setUser] = useState<User | null>(initialSession?.user || null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasSubscription, setHasSubscription] = useState(false);
+  const [isInTrial, setIsInTrial] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,6 +84,9 @@ export function AuthProvider({
           setUserRole(profile.role);
         }
 
+        // Check subscription status
+        await checkSubscription();
+
         // After profile is set up, check for pending executor token
         await handlePendingExecutorInvitation();
 
@@ -96,6 +104,38 @@ export function AuthProvider({
 
     getUserProfile();
   }, [user, navigate]);
+
+  const checkSubscription = async () => {
+    try {
+      // Only check subscription for planners
+      if (userRole !== 'planner' && userRole !== null) {
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('stripe_user_subscriptions')
+        .select('subscription_status')
+        .maybeSingle();
+      
+      if (error) throw error;
+      
+      const isActive = data?.subscription_status === 'active';
+      const isTrial = data?.subscription_status === 'trialing';
+      
+      setHasSubscription(isActive || isTrial);
+      setIsInTrial(isTrial);
+      
+      // Redirect to payment page if no subscription and not on auth or payment pages
+      if (user && userRole === 'planner' && !isActive && !isTrial && 
+          !window.location.pathname.includes('/auth') && 
+          !window.location.pathname.includes('/payment') &&
+          !window.location.pathname.includes('/executor')) {
+        navigate('/payment');
+      }
+    } catch (err) {
+      console.error('Error checking subscription:', err);
+    }
+  };
 
   const handlePendingExecutorInvitation = async () => {
     const pendingToken = localStorage.getItem('pendingExecutorToken');
@@ -268,7 +308,10 @@ export function AuthProvider({
     user,
     userRole,
     signOut,
-    loading
+    loading,
+    hasSubscription,
+    isInTrial,
+    checkSubscription
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

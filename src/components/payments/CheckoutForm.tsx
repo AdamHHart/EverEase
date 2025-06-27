@@ -33,7 +33,8 @@ export default function CheckoutForm({
     try {
       const { url } = await createCheckoutSession(
         products.membership.priceId,
-        products.membership.mode
+        products.membership.mode,
+        products.membership.trialPeriodDays
       );
 
       if (url) {
@@ -63,7 +64,7 @@ export default function CheckoutForm({
           Secure Payment
         </CardTitle>
         <CardDescription>
-          Create your membership. Members can be at ease, as your loved ones will be taken care of.
+          Start your 14-day free trial. After the trial period, your membership will continue at $19.99/month.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -85,8 +86,15 @@ export default function CheckoutForm({
               </p>
             </div>
             
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h3 className="font-medium text-blue-900 mb-2">14-Day Free Trial</h3>
+              <p className="text-sm text-blue-800">
+                You won't be charged until your free trial ends. You can cancel anytime during the trial period.
+              </p>
+            </div>
+            
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">Total:</span>
+              <span className="font-medium">Total after trial:</span>
               <span className="font-bold">{(amount / 100).toFixed(2)} {currency.toUpperCase()}/month</span>
             </div>
             
@@ -120,7 +128,7 @@ export default function CheckoutForm({
                     Processing...
                   </span>
                 ) : (
-                  `Subscribe for $${(amount / 100).toFixed(2)}/${currency.toUpperCase()} monthly`
+                  `Start 14-Day Free Trial`
                 )}
               </Button>
             </div>
@@ -136,4 +144,3 @@ export default function CheckoutForm({
     </Card>
   );
 }
-

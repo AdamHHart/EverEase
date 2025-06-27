@@ -62,7 +62,7 @@ function App() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-pulse h-12 w-12 rounded-full bg-calm-400"></div>
-          <p className="text-muted-foreground">Loading RestEasy...</p>
+          <p className="text-muted-foreground">Loading Ever Ease...</p>
         </div>
       </div>
     );
@@ -85,6 +85,9 @@ function App() {
         <Route path="/payment/success" element={<PaymentSuccessPage />} />
         <Route path="/payment/cancel" element={<PaymentCancelPage />} />
         
+        {/* Payment route - accessible with or without auth */}
+        <Route path="/payment" element={<PaymentPage />} />
+        
         {/* Protected routes - these require authentication */}
         <Route path="/" element={<Layout />}>
           <Route path="dashboard" element={<DashboardPage />} />
@@ -101,7 +104,6 @@ function App() {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="legal" element={<LegalPage />} />
           <Route path="help" element={<HelpPage />} />
-          <Route path="payment" element={<PaymentPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

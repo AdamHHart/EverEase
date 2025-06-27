@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { CreditCard, ShieldCheck, CheckCircle, ArrowLeft, Loader2 } from 'lucide-react';
+import { CreditCard, ShieldCheck, CheckCircle, ArrowLeft, Loader2, Clock } from 'lucide-react';
 import StripeProvider from '../components/payments/StripeProvider';
 import CheckoutForm from '../components/payments/CheckoutForm';
 import PaymentMethodSelector from '../components/payments/PaymentMethodSelector';
@@ -50,8 +50,8 @@ export default function PaymentPage() {
           Back
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">Payment</h1>
-          <p className="text-gray-500">Complete your purchase securely</p>
+          <h1 className="text-2xl font-bold">Membership</h1>
+          <p className="text-gray-500">Start your 14-day free trial</p>
         </div>
       </div>
 
@@ -75,9 +75,9 @@ export default function PaymentPage() {
                   <Card>
                     <CardContent className="pt-6 pb-6 text-center">
                       <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                      <h2 className="text-2xl font-bold text-green-700 mb-2">Payment Successful!</h2>
+                      <h2 className="text-2xl font-bold text-green-700 mb-2">Trial Started!</h2>
                       <p className="text-gray-600 mb-6">
-                        Thank you for your purchase. Your membership is now active.
+                        Your 14-day free trial has begun. You'll have full access to all premium features.
                       </p>
                       <Button onClick={() => navigate('/dashboard')}>
                         Return to Dashboard
@@ -111,7 +111,7 @@ export default function PaymentPage() {
                         handlePaymentSuccess('pi_mock_payment_intent_id');
                       }}
                     >
-                      Pay with Selected Method
+                      Start Free Trial with Selected Method
                     </Button>
                   </div>
                 )}
@@ -123,7 +123,7 @@ export default function PaymentPage() {
         <div className="md:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
+              <CardTitle>Membership Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between">
@@ -134,6 +134,15 @@ export default function PaymentPage() {
                 <span>Total</span>
                 <span>${(product.amount / 100).toFixed(2)}/month</span>
               </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Clock className="h-4 w-4 text-blue-600" />
+                  <h3 className="font-medium text-blue-900">14-Day Free Trial</h3>
+                </div>
+                <p className="text-sm text-blue-800">
+                  Your subscription starts with a 14-day free trial. You won't be charged until the trial period ends.
+                </p>
+              </div>
             </CardContent>
             <CardFooter className="bg-gray-50 border-t">
               <div className="text-sm text-gray-600 space-y-2 w-full">
@@ -143,7 +152,7 @@ export default function PaymentPage() {
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 mt-0.5 text-green-600" />
-                  <span>Instant access to premium features</span>
+                  <span>Cancel anytime during your trial</span>
                 </div>
               </div>
             </CardFooter>

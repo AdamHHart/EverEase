@@ -5,6 +5,7 @@ export const products = {
     name: 'EverEase Membership',
     description: 'Ongoing support of end-of-life estate management services',
     mode: 'subscription' as const,
+    trialPeriodDays: 14,
   },
 };
 
