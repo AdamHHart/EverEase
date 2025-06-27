@@ -1,4 +1,5 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { supabase } from './supabase';
 
 // Initialize Stripe with your publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
@@ -8,6 +9,13 @@ export { stripePromise };
 // Helper function to create a checkout session
 export const createCheckoutSession = async (priceId: string, mode: 'payment' | 'subscription' = 'subscription') => {
   try {
+    // Get the current user's session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      throw new Error('Failed to authenticate user');
+    }
+
     // Get the current URL to use for success and cancel URLs
     const origin = window.location.origin;
     const successUrl = `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`;
@@ -16,7 +24,7 @@ export const createCheckoutSession = async (priceId: string, mode: 'payment' | '
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
