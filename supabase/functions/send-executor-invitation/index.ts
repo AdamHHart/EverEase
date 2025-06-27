@@ -143,18 +143,15 @@ serve(async (req: Request) => {
       </html>
     `;
 
-    // Send email directly using Resend API
-    const resendApiKey = "re_NkHUzen8_NQLt4whNQbqWhcYgmRTynzRm";
-    
-    const emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
+    // Instead of using Resend directly, use our send-email function
+    const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: "onboarding@resend.dev",
-        to: [email],
+        to: email,
         subject: `You've been invited as an executor by ${plannerName || 'someone'}`,
         html,
       }),
@@ -162,7 +159,7 @@ serve(async (req: Request) => {
 
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
-      console.error("Resend API error:", errorText);
+      console.error("Email sending error:", errorText);
       throw new Error(`Failed to send email: ${errorText}`);
     }
 
@@ -184,7 +181,7 @@ serve(async (req: Request) => {
         success: true,
         message: "Invitation sent successfully",
         invitationUrl,
-        emailId: emailResult.id,
+        emailId: emailResult.messageId || emailResult.id,
       }),
       {
         status: 200,

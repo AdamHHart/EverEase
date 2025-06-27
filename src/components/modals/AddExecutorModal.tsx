@@ -97,10 +97,18 @@ export function AddExecutorModal({ open, onOpenChange, onSuccess }: AddExecutorM
         throw new Error(responseData.error || 'Failed to send invitation email');
       }
 
-      toast({
-        title: "Executor invited successfully! ✅",
-        description: `An invitation email has been sent to ${formData.name} at ${formData.email}. They have 7 days to accept the invitation.`,
-      });
+      // Check if the email is the user's own email
+      if (formData.email === user?.email) {
+        toast({
+          title: "Executor added successfully! ✅",
+          description: `Since you invited yourself, no email was sent. You can access executor functions from your dashboard.`,
+        });
+      } else {
+        toast({
+          title: "Executor invited successfully! ✅",
+          description: `An invitation email has been sent to ${formData.name} at ${formData.email}. They have 7 days to accept the invitation.`,
+        });
+      }
 
       // Reset form
       setFormData({
@@ -113,11 +121,25 @@ export function AddExecutorModal({ open, onOpenChange, onSuccess }: AddExecutorM
       onOpenChange(false);
     } catch (error: any) {
       console.error('Error adding executor:', error);
-      toast({
-        title: "Error sending invitation",
-        description: error.message || "Failed to invite executor. Please try again.",
-        variant: "destructive",
-      });
+      
+      // Check if it's a Resend validation error about sending to non-verified domains
+      if (error.message && error.message.includes("You can only send testing emails to your own email address")) {
+        toast({
+          title: "Executor added, but email not sent",
+          description: "The executor was added successfully, but we couldn't send an email invitation due to domain verification restrictions. Please share the invitation link manually.",
+          variant: "destructive",
+        });
+        
+        // Still consider this a success since the executor was created
+        onSuccess();
+        onOpenChange(false);
+      } else {
+        toast({
+          title: "Error sending invitation",
+          description: error.message || "Failed to invite executor. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
