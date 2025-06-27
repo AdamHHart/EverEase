@@ -1,190 +1,102 @@
 # Ever Ease - Secure End-of-Life Planning
 
-A comprehensive end-of-life planning platform that helps users organize their assets, documents, wishes, and designate executors with secure, encrypted storage.
+Ever Ease is a comprehensive platform that helps users organize their end-of-life planning documents, designate executors, and ensure their wishes are carried out when the time comes.
+
+![Ever Ease](https://images.pexels.com/photos/3760529/pexels-photo-3760529.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2)
 
 ## Features
 
-- **Personalized Planning Checklist**: Customized based on user responses
-- **Asset Documentation**: Financial, physical, and digital assets
-- **Document Storage**: Secure upload and organization
-- **Wishes & Directives**: Medical, funeral, and personal preferences
-- **Executor Management**: Invite and manage trusted individuals
-- **Email Notifications**: Automated invitations and confirmations
-- **End-to-End Encryption**: All data is securely encrypted
+- **Guided Planning**: AI-powered assistant (Emma) guides users through the planning process
+- **Document Management**: Securely store and organize important documents
+- **Asset Inventory**: Document financial, physical, and digital assets
+- **Executor Management**: Designate trusted individuals to carry out your wishes
+- **Wishes & Directives**: Record medical directives, funeral preferences, and personal messages
+- **End-to-End Encryption**: All sensitive data is encrypted for maximum security
+- **Executor Workflow**: Guided process for executors when the time comes
 
-## Quick Setup
+## Tech Stack
 
-### 1. Configure Supabase
+- **Frontend**: React, TypeScript, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- **AI**: Claude API for Emma assistant
+- **Payments**: Stripe integration
+- **Email**: Resend for transactional emails
 
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Copy your project URL and anonymous key from Settings → API
-3. Create a `.env` file in the project root:
+## Getting Started
 
-```env
-# Supabase environment variables
-VITE_SUPABASE_URL=https://your-project-id.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anonymous-key
+### Prerequisites
 
-# Email service configuration (optional)
-EMAIL_SERVICE=resend
-RESEND_API_KEY=your-resend-api-key
-FROM_EMAIL=noreply@yourdomain.com
-APP_URL=https://yourdomain.com
-```
+- Node.js 18+
+- npm or yarn
+- Supabase account
+- Resend account (for emails)
+- Stripe account (for payments)
+- Claude API key (for AI assistant)
 
-### 2. Set up Database
+### Installation
 
-Run the migration files in your Supabase SQL editor in order:
-- All files in `supabase/migrations/` directory
-
-### 3. Configure Email (Optional)
-
-For email notifications to work, you need to:
-
-1. **Choose an email service** (Resend recommended):
-   - Sign up at [resend.com](https://resend.com)
-   - Get your API key from the dashboard
-
-2. **Set environment variables in Supabase**:
-   - Go to your Supabase project dashboard
-   - Navigate to Settings → Edge Functions
-   - Add these environment variables:
-     ```
-     EMAIL_SERVICE=resend
-     RESEND_API_KEY=your-resend-api-key
-     FROM_EMAIL=noreply@yourdomain.com
-     APP_URL=https://yourdomain.com
-     ```
-
-3. **Deploy edge functions**:
+1. Clone the repository
    ```bash
-   # Deploy the send-email function
-   supabase functions deploy send-email
+   git clone https://github.com/yourusername/ever-ease.git
+   cd ever-ease
    ```
 
-## Email Configuration
-
-### Option 1: Resend (Recommended)
-
-1. Sign up at [resend.com](https://resend.com)
-2. Get your API key from the dashboard
-3. Set environment variables in Supabase:
-   ```
-   EMAIL_SERVICE=resend
-   RESEND_API_KEY=your-resend-api-key
-   FROM_EMAIL=noreply@yourdomain.com
-   APP_URL=https://yourdomain.com
+2. Install dependencies
+   ```bash
+   npm install
    ```
 
-### Option 2: SendGrid
+3. Set up environment variables
+   - Copy `.env.example` to `.env`
+   - Fill in your Supabase, Stripe, and Resend API keys
 
-1. Sign up at [sendgrid.com](https://sendgrid.com)
-2. Get your API key from the dashboard
-3. Set environment variables in Supabase:
-   ```
-   EMAIL_SERVICE=sendgrid
-   SENDGRID_API_KEY=your-sendgrid-api-key
-   FROM_EMAIL=noreply@yourdomain.com
-   APP_URL=https://yourdomain.com
-   ```
-
-### Setting Environment Variables in Supabase
-
-1. Go to your Supabase project dashboard
-2. Navigate to Settings → Edge Functions
-3. Add the environment variables listed above
-4. Deploy the edge functions
-
-## Email Templates Included
-
-- **Welcome Email**: Sent after user registration
-- **Executor Invitation**: Sent when inviting someone as an executor
-- **Password Reset**: Sent when user requests password reset
-
-## Testing Email Delivery
-
-1. **Check Spam Folder**: Emails might end up in spam initially
-2. **Verify Domain**: Set up proper DNS records for your domain
-3. **Test with Different Providers**: Try Gmail, Outlook, etc.
-4. **Monitor Logs**: Check Supabase edge function logs for errors
-
-## Troubleshooting
-
-### "Failed to fetch" Errors
-
-This usually means Supabase is not properly configured:
-
-1. **Check your .env file**:
-   - Ensure `VITE_SUPABASE_URL` is set to your actual Supabase project URL
-   - Ensure `VITE_SUPABASE_ANON_KEY` is set to your actual anonymous key
-   - These values should NOT contain placeholder text
-
-2. **Find your Supabase credentials**:
-   - Go to your Supabase project dashboard
-   - Navigate to Settings → API
-   - Copy the "Project URL" and "anon public" key
-
-3. **Restart your development server** after updating the .env file:
+4. Start the development server
    ```bash
    npm run dev
    ```
 
-### Email Issues
+### Supabase Setup
 
-#### Emails Not Being Sent
-
-1. Check environment variables are set correctly in Supabase
-2. Verify API keys are valid and have proper permissions
-3. Check edge function logs in Supabase dashboard
-4. Ensure your email service account is verified
-
-#### Emails Going to Spam
-
-1. Set up SPF, DKIM, and DMARC records for your domain
-2. Use a verified domain for the FROM_EMAIL
-3. Avoid spam trigger words in subject lines
-4. Maintain good sender reputation
-
-#### Email Service Limits
-
-- **Resend**: 100 emails/day on free plan
-- **SendGrid**: 100 emails/day on free plan
-
-For production use, upgrade to a paid plan for higher limits and better deliverability.
-
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Run tests
-npm test
-
-# Build for production
-npm run build
-```
+1. Create a new Supabase project
+2. Run the migrations in `supabase/migrations`
+3. Set up storage buckets for document uploads
+4. Deploy the Edge Functions:
+   ```bash
+   supabase functions deploy send-email
+   supabase functions deploy test-email
+   supabase functions deploy send-executor-invitation
+   supabase functions deploy stripe-checkout
+   supabase functions deploy stripe-webhook
+   ```
 
 ## Deployment
 
-The app is configured for deployment on Netlify with Supabase as the backend.
+The application is configured for deployment on Netlify:
 
-1. Connect your repository to Netlify
-2. Set up environment variables in Netlify
-3. Configure Supabase project
-4. Deploy edge functions to Supabase
+```bash
+npm run deploy:staging   # Deploy to staging
+npm run deploy:production # Deploy to production
+```
 
-## Security
+## Project Structure
 
-- All user data is encrypted at rest
-- End-to-end encryption for sensitive information
-- Row-level security policies in Supabase
-- Secure authentication with Supabase Auth
-- Audit logging for all user actions
+- `/src` - Frontend React application
+  - `/components` - Reusable UI components
+  - `/contexts` - React context providers
+  - `/lib` - Utility functions and API clients
+  - `/pages` - Application pages
+- `/supabase` - Supabase configuration
+  - `/migrations` - Database migrations
+  - `/functions` - Edge Functions
 
-## Support
+## Contributing
 
-For issues or questions, please check the documentation or contact support.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

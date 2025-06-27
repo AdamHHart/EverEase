@@ -192,6 +192,18 @@ export function AddExecutorModal({ open, onOpenChange, onSuccess }: AddExecutorM
             </ul>
           </div>
           
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <h4 className="font-medium text-red-900 mb-2">⚠️ Resend Testing Limitation</h4>
+            <div className="text-sm text-red-800">
+              <p>With Resend's free tier, you can only send emails to:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4">
+                <li>Your own verified email (adamhayhart@gmail.com)</li>
+                <li>Emails on domains you've verified in Resend</li>
+              </ul>
+              <p className="mt-2">Until domain verification is complete, executor invitations will only work when sent to your own email.</p>
+            </div>
+          </div>
+          
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel

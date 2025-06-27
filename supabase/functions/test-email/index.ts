@@ -93,35 +93,34 @@ serve(async (req: Request) => {
       </html>
     `;
 
-    // Send email using Resend API
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
+    // Use the send-email function instead of direct Resend API call
+    const emailResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email`, {
+      method: 'POST',
       headers: {
-        "Authorization": `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
+        'Authorization': `Bearer ${Deno.env.get("SUPABASE_ANON_KEY")}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: "onboarding@resend.dev",
-        to: [recipientEmail],
+        to: recipientEmail,
         subject: emailSubject,
         html,
       }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Resend API error:", errorText);
-      throw new Error(`Resend API error: ${response.status} - ${errorText}`);
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error("Email sending error:", errorText);
+      throw new Error(`Failed to send email: ${errorText}`);
     }
 
-    const result = await response.json();
+    const result = await emailResponse.json();
     console.log("Email sent successfully:", result);
 
     return new Response(
       JSON.stringify({
         success: true,
         message: "Test email sent successfully!",
-        emailId: result.id,
+        emailId: result.messageId || result.id,
         recipient: recipientEmail,
         details: {
           service: "Resend",

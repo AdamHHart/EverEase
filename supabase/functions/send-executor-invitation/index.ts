@@ -41,7 +41,7 @@ serve(async (req: Request) => {
     const token = crypto.randomUUID();
     
     // Use the current domain - updated to the previous Netlify URL
-    const appUrl = "https://splendorous-taffy-cfab45.netlify.app";
+    const appUrl = Deno.env.get("APP_URL") || "https://everease.io";
     const invitationUrl = `${appUrl}/executor/accept/${token}`;
 
     // Store the invitation token

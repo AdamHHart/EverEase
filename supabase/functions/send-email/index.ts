@@ -47,6 +47,7 @@ Deno.serve(async (req: Request) => {
     const fromEmail = Deno.env.get("FROM_EMAIL") || "onboarding@resend.dev";
     
     console.log(`Email service configured as: ${emailService}`);
+    console.log(`From email address: ${fromEmail}`);
     console.log(`Available environment variables: EMAIL_SERVICE=${Deno.env.get("EMAIL_SERVICE")}, RESEND_API_KEY=${resendApiKey ? 'set' : 'not set'}, SENDGRID_API_KEY=${sendGridApiKey ? 'set' : 'not set'}`);
     
     let response;
@@ -60,7 +61,7 @@ Deno.serve(async (req: Request) => {
       if (!sendGridApiKey) {
         throw new Error("SENDGRID_API_KEY environment variable is required for SendGrid service");
       }
-      response = await sendWithSendGrid(to, subject, emailHtml, emailText);
+      response = await sendWithSendGrid(to, subject, emailHtml, emailText, sendGridApiKey, fromEmail);
     } else {
       // Provide more detailed error information
       throw new Error(`Unsupported email service: "${emailService}". Supported services are: "resend" or "sendgrid". Please check your EMAIL_SERVICE environment variable.`);
@@ -139,15 +140,22 @@ async function sendWithResend(
   return result;
 }
 
-async function sendWithSendGrid(to: string, subject: string, html: string, text?: string) {
-  const sendGridApiKey = Deno.env.get("SENDGRID_API_KEY");
-  const fromEmail = Deno.env.get("FROM_EMAIL") || "noreply@resteasy.com";
+async function sendWithSendGrid(
+  to: string, 
+  subject: string, 
+  html: string, 
+  text?: string,
+  apiKey?: string,
+  fromEmail?: string
+) {
+  const sendGridApiKey = apiKey || Deno.env.get("SENDGRID_API_KEY");
+  const from = fromEmail || Deno.env.get("FROM_EMAIL") || "noreply@resteasy.com";
   
   if (!sendGridApiKey) {
     throw new Error("SENDGRID_API_KEY environment variable is required");
   }
 
-  console.log(`Sending email via SendGrid to ${to} from ${fromEmail}`);
+  console.log(`Sending email via SendGrid to ${to} from ${from}`);
 
   const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
     method: "POST",
@@ -162,7 +170,7 @@ async function sendWithSendGrid(to: string, subject: string, html: string, text?
           subject,
         },
       ],
-      from: { email: fromEmail, name: "Ever Ease" },
+      from: { email: from, name: "Ever Ease" },
       content: [
         {
           type: "text/html",
