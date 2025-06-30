@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/button';
@@ -16,12 +16,20 @@ export default function AuthPage() {
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (user) {
       navigate('/dashboard');
     }
-  }, [user, navigate]);
+
+    // Check if mode is specified in URL query params
+    const params = new URLSearchParams(location.search);
+    const modeParam = params.get('mode');
+    if (modeParam === 'signup' || modeParam === 'reset') {
+      setMode(modeParam);
+    }
+  }, [user, navigate, location]);
 
   // Check if Supabase is configured
   const supabaseConfigured = isSupabaseConfigured();
