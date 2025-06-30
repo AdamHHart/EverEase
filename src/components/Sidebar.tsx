@@ -100,19 +100,28 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex w-64 flex-col bg-white border-r border-border">
       <div className="p-4 flex items-center justify-center border-b border-border">
-        <Link to="/dashboard">
+        <Link to="/dashboard" className="flex items-center">
           {logoError ? (
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-8 w-8 text-calm-600" />
               <span className="text-xl font-semibold">Ever Ease</span>
             </div>
           ) : (
-            <img 
-              src="/everease_logo.png" 
-              alt="Ever Ease" 
-              className="h-12 w-auto"
-              onError={() => setLogoError(true)}
-            />
+            <div className="flex items-center">
+              <img 
+                src="/everease_logo.png" 
+                alt="Ever Ease" 
+                className="h-12 w-auto"
+                onError={() => setLogoError(true)}
+              />
+              <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
+                <img 
+                  src="/black_circle_360x360.png" 
+                  alt="Powered by Bolt.new" 
+                  className="h-8 w-auto ml-2"
+                />
+              </a>
+            </div>
           )}
         </Link>
       </div>

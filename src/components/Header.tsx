@@ -69,7 +69,16 @@ export default function Header() {
       </button>
       
       <div className="flex-1 md:pl-4">
-        <h2 className="text-lg font-semibold text-foreground">My Secure Vault</h2>
+        <div className="flex items-center">
+          <h2 className="text-lg font-semibold text-foreground">My Secure Vault</h2>
+          <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer" className="ml-2 md:hidden">
+            <img 
+              src="/black_circle_360x360.png" 
+              alt="Powered by Bolt.new" 
+              className="h-6 w-auto"
+            />
+          </a>
+        </div>
       </div>
       
       <div className="flex items-center space-x-4">
