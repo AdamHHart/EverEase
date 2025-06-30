@@ -143,28 +143,39 @@ serve(async (req: Request) => {
       </html>
     `;
 
-    // Instead of using Resend directly, use our send-email function
-    const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to: email,
-        subject: `You've been invited as an executor by ${plannerName || 'someone'}`,
-        html,
-      }),
-    });
+    let emailResult;
+    let emailSuccess = false;
 
-    if (!emailResponse.ok) {
-      const errorText = await emailResponse.text();
-      console.error("Email sending error:", errorText);
-      throw new Error(`Failed to send email: ${errorText}`);
+    try {
+      // Instead of using Resend directly, use our send-email function
+      const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: email,
+          subject: `You've been invited as an executor by ${plannerName || 'someone'}`,
+          html,
+        }),
+      });
+
+      if (!emailResponse.ok) {
+        const errorText = await emailResponse.text();
+        console.error("Email sending error:", errorText);
+        // Don't throw here, we'll still create the invitation but warn the user
+        emailResult = { error: errorText };
+      } else {
+        emailResult = await emailResponse.json();
+        emailSuccess = true;
+        console.log("Email sent successfully:", emailResult);
+      }
+    } catch (emailError) {
+      console.error("Error sending email:", emailError);
+      emailResult = { error: emailError.message };
+      // Continue with the process even if email fails
     }
-
-    const emailResult = await emailResponse.json();
-    console.log("Email sent successfully:", emailResult);
 
     // Log the activity
     await supabase
@@ -179,9 +190,11 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Invitation sent successfully",
+        message: emailSuccess ? "Invitation sent successfully" : "Executor created but email could not be sent",
         invitationUrl,
-        emailId: emailResult.messageId || emailResult.id,
+        emailId: emailResult?.messageId || emailResult?.id,
+        emailSent: emailSuccess,
+        emailError: !emailSuccess ? emailResult?.error : undefined
       }),
       {
         status: 200,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -39,6 +39,9 @@ export default function ExecutorInvitation() {
   useEffect(() => {
     if (token) {
       verifyInvitation();
+    } else {
+      setError('No invitation token provided');
+      setLoading(false);
     }
   }, [token]);
 
@@ -46,6 +49,13 @@ export default function ExecutorInvitation() {
     try {
       setLoading(true);
       setError(null);
+
+      // Check if Supabase is configured
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase is not properly configured. Please check your environment variables.');
+      }
+
+      console.log('Verifying invitation token:', token);
 
       // Verify the invitation token
       const { data, error } = await supabase
@@ -69,6 +79,8 @@ export default function ExecutorInvitation() {
         console.error('Error fetching invitation:', error);
         throw new Error('Invalid or expired invitation link');
       }
+
+      console.log('Invitation data:', data);
 
       // Check if invitation has expired
       const expiresAt = new Date(data.expires_at);

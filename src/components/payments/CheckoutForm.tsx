@@ -31,6 +31,14 @@ export default function CheckoutForm({
     setError(null);
 
     try {
+      if (!import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) {
+        throw new Error('Stripe publishable key is not configured. Please check your environment variables.');
+      }
+
+      if (import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY.startsWith('sk_')) {
+        throw new Error('You are using a secret key with Stripe.js. Please use a publishable key instead.');
+      }
+
       // Use the server-side checkout session creation
       const { url } = await createCheckoutSession(
         products.membership.priceId,

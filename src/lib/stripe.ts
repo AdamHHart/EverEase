@@ -1,8 +1,11 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { supabase } from './supabase';
 
-// Initialize Stripe with your publishable key
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+// Initialize Stripe with your publishable key, with error handling
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
+const stripePromise = stripeKey ? 
+  loadStripe(stripeKey) : 
+  Promise.resolve(null);
 
 export { stripePromise };
 
