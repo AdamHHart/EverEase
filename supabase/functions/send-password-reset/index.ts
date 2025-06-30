@@ -22,9 +22,12 @@ serve(async (req: Request) => {
 
     const { email, resetUrl } = await req.json();
 
-    if (!email || !resetUrl) {
-      throw new Error("Email and reset URL are required");
+    if (!email) {
+      throw new Error("Email is required");
     }
+
+    const appUrl = Deno.env.get("APP_URL") || resetUrl || "https://everease.io";
+    const finalResetUrl = resetUrl || `${appUrl}/auth/reset-password`;
 
     const html = `
       <!DOCTYPE html>
@@ -57,7 +60,7 @@ serve(async (req: Request) => {
             <p>We received a request to reset the password for your Ever Ease account associated with <strong>${email}</strong>.</p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetUrl}" class="button">Reset Your Password</a>
+              <a href="${finalResetUrl}" class="button">Reset Your Password</a>
             </div>
             
             <div class="security-note">
@@ -71,7 +74,7 @@ serve(async (req: Request) => {
             </div>
             
             <p>If the button above doesn't work, you can copy and paste this link into your browser:</p>
-            <p class="code" style="word-break: break-all;">${resetUrl}</p>
+            <p class="code" style="word-break: break-all;">${finalResetUrl}</p>
             
             <p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
             
@@ -91,28 +94,44 @@ serve(async (req: Request) => {
     `;
 
     // Send email using the send-email function
-    const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to: email,
-        subject: 'Reset Your Ever Ease Password',
-        html,
-      }),
-    });
+    try {
+      const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: email,
+          subject: 'Reset Your Ever Ease Password',
+          html,
+        }),
+      });
 
-    if (!emailResponse.ok) {
-      throw new Error('Failed to send password reset email');
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.text();
+        console.error("Email sending error:", errorData);
+        throw new Error(`Failed to send password reset email: ${errorData}`);
+      }
+
+      const emailResult = await emailResponse.json();
+      console.log("Password reset email sent:", emailResult);
+    } catch (emailError) {
+      console.error("Error sending password reset email:", emailError);
+      // We'll still return success since Supabase will send its default email
+      // This is just our custom styled email
     }
 
     // Log the activity
-    await supabase.from('activity_log').insert({
-      action_type: 'password_reset_requested',
-      details: `Password reset email sent to ${email}`,
-    });
+    try {
+      await supabase.from('activity_log').insert({
+        action_type: 'password_reset_requested',
+        details: `Password reset email sent to ${email}`,
+      });
+    } catch (logError) {
+      console.error("Error logging password reset:", logError);
+      // Non-critical error, continue
+    }
 
     return new Response(
       JSON.stringify({

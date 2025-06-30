@@ -147,7 +147,7 @@ serve(async (req: Request) => {
     let emailSuccess = false;
 
     try {
-      // Instead of using Resend directly, use our send-email function
+      // Use the send-email function instead of direct Resend API call
       const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
         method: 'POST',
         headers: {
