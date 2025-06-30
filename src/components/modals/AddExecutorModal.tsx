@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { supabase } from '../../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from '../ui/toast';
 
@@ -26,6 +26,11 @@ export function AddExecutorModal({ open, onOpenChange, onSuccess }: AddExecutorM
     setLoading(true);
 
     try {
+      // Check if Supabase is properly configured
+      if (!isSupabaseConfigured()) {
+        throw new Error('Supabase is not properly configured. Please check your environment variables.');
+      }
+
       // Create executor record
       const { data: executor, error: executorError } = await supabase
         .from('executors')
@@ -85,13 +90,41 @@ export function AddExecutorModal({ open, onOpenChange, onSuccess }: AddExecutorM
         })
       });
 
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Email sending failed:', errorData);
+        
+        // If the email is the user's own email, we can still proceed
+        if (formData.email === user?.email) {
+          toast({
+            title: "Executor added successfully! ✅",
+            description: `Since you invited yourself, no email was sent. You can access executor functions from your dashboard.`,
+          });
+          
+          // Reset form and close modal
+          setFormData({
+            name: '',
+            email: '',
+            relationship: '',
+          });
+          
+          onSuccess();
+          onOpenChange(false);
+          return;
+        }
+        
+        // Check if it's a Resend validation error
+        if (errorData.includes("You can only send to verified emails") || 
+            errorData.includes("domain not verified") ||
+            errorData.includes("Unsupported email service")) {
+          throw new Error("Email could not be sent due to domain verification restrictions. The executor was added, but you'll need to share the invitation link manually.");
+        }
+        
+        throw new Error(`Failed to send invitation email: ${errorData}`);
+      }
+
       const responseData = await response.json();
       console.log('Email response:', responseData);
-
-      if (!response.ok) {
-        console.error('Email sending failed:', responseData);
-        throw new Error(responseData.error || 'Failed to send invitation email');
-      }
 
       if (!responseData.success) {
         throw new Error(responseData.error || 'Failed to send invitation email');
@@ -123,7 +156,10 @@ export function AddExecutorModal({ open, onOpenChange, onSuccess }: AddExecutorM
       console.error('Error adding executor:', error);
       
       // Check if it's a Resend validation error about sending to non-verified domains
-      if (error.message && error.message.includes("You can only send testing emails to your own email address")) {
+      if (error.message && (
+          error.message.includes("domain verification") || 
+          error.message.includes("verified emails") ||
+          error.message.includes("Unsupported email service"))) {
         toast({
           title: "Executor added, but email not sent",
           description: "The executor was added successfully, but we couldn't send an email invitation due to domain verification restrictions. Please share the invitation link manually.",
@@ -190,18 +226,6 @@ export function AddExecutorModal({ open, onOpenChange, onSuccess }: AddExecutorM
               <li>• Once accepted, they'll have access to your planning documents</li>
               <li>• You can revoke access at any time</li>
             </ul>
-          </div>
-          
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <h4 className="font-medium text-red-900 mb-2">⚠️ Resend Testing Limitation</h4>
-            <div className="text-sm text-red-800">
-              <p>With Resend's free tier, you can only send emails to:</p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>Your own verified email (adamhayhart@gmail.com)</li>
-                <li>Emails on domains you've verified in Resend</li>
-              </ul>
-              <p className="mt-2">Until domain verification is complete, executor invitations will only work when sent to your own email.</p>
-            </div>
           </div>
           
           <DialogFooter>

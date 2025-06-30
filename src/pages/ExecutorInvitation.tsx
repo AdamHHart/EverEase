@@ -66,6 +66,7 @@ export default function ExecutorInvitation() {
         .single();
 
       if (error) {
+        console.error('Error fetching invitation:', error);
         throw new Error('Invalid or expired invitation link');
       }
 
@@ -100,6 +101,7 @@ export default function ExecutorInvitation() {
       setAccountData(prev => ({ ...prev, email: data.executor.email }));
       setStep('welcome');
     } catch (err: any) {
+      console.error('Verification error:', err);
       setError(err.message);
     } finally {
       setLoading(false);

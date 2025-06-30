@@ -65,6 +65,7 @@ export default function ExecutorAcceptPage() {
         .single();
 
       if (error) {
+        console.error('Error fetching invitation:', error);
         throw new Error('Invalid or expired invitation link');
       }
 
@@ -87,6 +88,7 @@ export default function ExecutorAcceptPage() {
       setAccountData(prev => ({ ...prev, email: data.executor.email }));
       setStep('account-setup');
     } catch (err: any) {
+      console.error('Verification error:', err);
       setError(err.message);
     } finally {
       setLoading(false);

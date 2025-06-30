@@ -13,7 +13,7 @@ serve(async (req) => {
   try {
     const { messages, systemPrompt } = await req.json()
     
-    const CLAUDE_API_KEY = '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'
+    const CLAUDE_API_KEY = Deno.env.get("CLAUDE_API_KEY");
     if (!CLAUDE_API_KEY) {
       throw new Error('Claude API key not configured')
     }
