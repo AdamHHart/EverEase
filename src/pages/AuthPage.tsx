@@ -196,7 +196,16 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="flex justify-center mb-4">
-            <ShieldCheck className="h-16 w-16 text-calm-600" />
+            <div className="flex items-center">
+              <ShieldCheck className="h-16 w-16 text-calm-600" />
+              <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer" className="ml-2">
+                <img 
+                  src="/bolt_badge.png" 
+                  alt="Powered by Bolt.new" 
+                  className="h-8 w-8"
+                />
+              </a>
+            </div>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Ever Ease</h1>
           <p className="text-muted-foreground">
@@ -348,6 +357,15 @@ export default function AuthPage() {
         
         <div className="mt-8 text-center text-sm text-muted-foreground">
           <p>Ever Ease secures your data with end-to-end encryption</p>
+          <div className="flex justify-center mt-2">
+            <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
+              <img 
+                src="/bolt_badge.png" 
+                alt="Powered by Bolt.new" 
+                className="h-6 w-6"
+              />
+            </a>
+          </div>
         </div>
       </div>
     </div>

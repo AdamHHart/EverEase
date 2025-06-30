@@ -40,9 +40,9 @@ serve(async (req: Request) => {
     // Generate a secure invitation token
     const token = crypto.randomUUID();
     
-    // Use the current domain - updated to the previous Netlify URL
+    // Use the configured APP_URL or fallback to a default
     const appUrl = Deno.env.get("APP_URL") || "https://everease.io";
-    const invitationUrl = `${appUrl}/executor/accept/${token}`;
+    const invitationUrl = `${appUrl}/executor/invitation/${token}`;
 
     // Store the invitation token
     const { error: inviteError } = await supabase

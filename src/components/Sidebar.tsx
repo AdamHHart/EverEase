@@ -105,6 +105,13 @@ export default function Sidebar() {
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-8 w-8 text-calm-600" />
               <span className="text-xl font-semibold">Ever Ease</span>
+              <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
+                <img 
+                  src="/bolt_badge.png" 
+                  alt="Powered by Bolt.new" 
+                  className="h-8 w-8 ml-2"
+                />
+              </a>
             </div>
           ) : (
             <div className="flex items-center">
@@ -116,9 +123,9 @@ export default function Sidebar() {
               />
               <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
                 <img 
-                  src="/black_circle_360x360.png" 
+                  src="/bolt_badge.png" 
                   alt="Powered by Bolt.new" 
-                  className="h-8 w-auto ml-2"
+                  className="h-8 w-8 ml-2"
                 />
               </a>
             </div>

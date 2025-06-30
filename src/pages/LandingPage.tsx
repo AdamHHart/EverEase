@@ -72,8 +72,17 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <ShieldCheck className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">EverEase</span>
+              <div className="flex items-center">
+                <ShieldCheck className="h-8 w-8 text-blue-600" />
+                <span className="text-2xl font-bold text-gray-900 ml-2">EverEase</span>
+                <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer" className="ml-2">
+                  <img 
+                    src="/bolt_badge.png" 
+                    alt="Powered by Bolt.new" 
+                    className="h-8 w-8"
+                  />
+                </a>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <button 
@@ -338,8 +347,17 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <ShieldCheck className="h-8 w-8 text-blue-400" />
-              <span className="text-2xl font-bold">EverEase</span>
+              <div className="flex items-center">
+                <ShieldCheck className="h-8 w-8 text-blue-400" />
+                <span className="text-2xl font-bold ml-2">EverEase</span>
+                <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer" className="ml-2">
+                  <img 
+                    src="/bolt_badge.png" 
+                    alt="Powered by Bolt.new" 
+                    className="h-8 w-8"
+                  />
+                </a>
+              </div>
             </div>
             <div className="flex space-x-8 text-sm text-gray-300">
               <button 
